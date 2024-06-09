@@ -1034,9 +1034,10 @@ public class DashBoardPage extends javax.swing.JFrame {
         }
         else{
         try{
-             int id = Integer.parseInt(employee_Table.getValueAt(employee_Table.getSelectedRow(),0).toString());
-
+            int confirm = JOptionPane.showConfirmDialog(null,"Are you sure you want to update?","Confirm",JOptionPane.YES_NO_OPTION);
+            if(confirm == JOptionPane.YES_OPTION){
             
+            int id = Integer.parseInt(employee_Table.getValueAt(employee_Table.getSelectedRow(),0).toString());
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(SUrl,SUser,SPass);
             Statement st = con.createStatement();
@@ -1061,6 +1062,10 @@ public class DashBoardPage extends javax.swing.JFrame {
             birthdate_txtfield.setText("");
             position_txtfield.setText("");
             showMessageDialog(null,"Update Successful!","Message",JOptionPane.INFORMATION_MESSAGE);
+            
+            }
+
+            
             
         }catch(Exception e){
             System.out.println("Error: "+e.getMessage());
