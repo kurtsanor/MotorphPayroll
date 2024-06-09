@@ -92,6 +92,7 @@ public class LoginPage extends javax.swing.JFrame {
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/locked (2).png"))); // NOI18N
 
+        jCheckBox1.setBackground(new java.awt.Color(33, 33, 33));
         jCheckBox1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jCheckBox1.setForeground(new java.awt.Color(255, 255, 255));
         jCheckBox1.setText("Remember me");

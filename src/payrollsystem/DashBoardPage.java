@@ -47,7 +47,7 @@ public class DashBoardPage extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        menu_panel = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
         Dashboard_Panel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         Profile_Panel = new javax.swing.JPanel();
@@ -60,7 +60,7 @@ public class DashBoardPage extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jPanel12 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        top_panel = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
         logout_bttn = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         Dashboard_Tab = new javax.swing.JPanel();
@@ -119,7 +119,7 @@ public class DashBoardPage extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(255, 204, 153));
         jPanel1.setLayout(null);
 
-        menu_panel.setBackground(new java.awt.Color(23, 22, 22));
+        jPanel2.setBackground(new java.awt.Color(23, 22, 22));
 
         Dashboard_Panel.setBackground(new java.awt.Color(33, 33, 33));
         Dashboard_Panel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -306,10 +306,10 @@ public class DashBoardPage extends javax.swing.JFrame {
                 .addComponent(jLabel1))
         );
 
-        javax.swing.GroupLayout menu_panelLayout = new javax.swing.GroupLayout(menu_panel);
-        menu_panel.setLayout(menu_panelLayout);
-        menu_panelLayout.setHorizontalGroup(
-            menu_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(Dashboard_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(Profile_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(EmployeeMang_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -317,9 +317,9 @@ public class DashBoardPage extends javax.swing.JFrame {
             .addComponent(Leave_panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-        menu_panelLayout.setVerticalGroup(
-            menu_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(menu_panelLayout.createSequentialGroup()
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(52, 52, 52)
                 .addComponent(Dashboard_Panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -334,10 +334,10 @@ public class DashBoardPage extends javax.swing.JFrame {
                 .addContainerGap(112, Short.MAX_VALUE))
         );
 
-        jPanel1.add(menu_panel);
-        menu_panel.setBounds(0, 0, 202, 470);
+        jPanel1.add(jPanel2);
+        jPanel2.setBounds(0, 0, 202, 470);
 
-        top_panel.setBackground(new java.awt.Color(255, 153, 0));
+        jPanel3.setBackground(new java.awt.Color(255, 153, 0));
 
         logout_bttn.setBackground(new java.awt.Color(255, 51, 51));
         logout_bttn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -350,25 +350,25 @@ public class DashBoardPage extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout top_panelLayout = new javax.swing.GroupLayout(top_panel);
-        top_panel.setLayout(top_panelLayout);
-        top_panelLayout.setHorizontalGroup(
-            top_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, top_panelLayout.createSequentialGroup()
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap(434, Short.MAX_VALUE)
                 .addComponent(logout_bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-        top_panelLayout.setVerticalGroup(
-            top_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(top_panelLayout.createSequentialGroup()
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(logout_bttn, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(17, Short.MAX_VALUE))
         );
 
-        jPanel1.add(top_panel);
-        top_panel.setBounds(200, 0, 580, 60);
+        jPanel1.add(jPanel3);
+        jPanel3.setBounds(200, 0, 580, 60);
 
         Dashboard_Tab.setBackground(new java.awt.Color(255, 204, 102));
 
@@ -990,8 +990,8 @@ public class DashBoardPage extends javax.swing.JFrame {
                 showMessageDialog(null,"Please fillup all information","Invalid",JOptionPane.ERROR_MESSAGE);
             }
             else{
-            lastname = firstname_txtfield.getText();
-            firstname= lastname_txtfield.getText();
+            firstname = firstname_txtfield.getText();
+            lastname= lastname_txtfield.getText();
             address= addresstxtfield.getText();
             birthdate= birthdate_txtfield.getText();
             Position = position_txtfield.getText();
@@ -1249,6 +1249,8 @@ public class DashBoardPage extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
@@ -1259,8 +1261,6 @@ public class DashBoardPage extends javax.swing.JFrame {
     private java.awt.List list1;
     private java.awt.List list2;
     private javax.swing.JButton logout_bttn;
-    private javax.swing.JPanel menu_panel;
     private javax.swing.JTextField position_txtfield;
-    private javax.swing.JPanel top_panel;
     // End of variables declaration//GEN-END:variables
 }
