@@ -36,6 +36,7 @@ public class PayrollSystem {
                 new LoginPage().setVisible(true);
             }
         });
+
     }
     
 }

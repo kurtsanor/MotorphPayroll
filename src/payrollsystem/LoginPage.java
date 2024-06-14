@@ -4,8 +4,14 @@
  */
 package payrollsystem;
 
-import javax.swing.JFrame;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.showMessageDialog;
 
 /**
  *
@@ -49,7 +55,7 @@ public class LoginPage extends javax.swing.JFrame {
         setResizable(false);
         getContentPane().setLayout(null);
 
-        jPanel1.setBackground(new java.awt.Color(33, 33, 33));
+        jPanel1.setBackground(new java.awt.Color(1, 30, 30));
 
         MotorPhLabel.setBackground(new java.awt.Color(255, 204, 51));
         MotorPhLabel.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
@@ -73,7 +79,7 @@ public class LoginPage extends javax.swing.JFrame {
 
         PasswordField.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        LoginButton.setBackground(new java.awt.Color(255, 153, 0));
+        LoginButton.setBackground(new java.awt.Color(0, 153, 153));
         LoginButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         LoginButton.setForeground(new java.awt.Color(255, 255, 255));
         LoginButton.setText("Login");
@@ -95,7 +101,7 @@ public class LoginPage extends javax.swing.JFrame {
         jCheckBox1.setBackground(new java.awt.Color(33, 33, 33));
         jCheckBox1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jCheckBox1.setForeground(new java.awt.Color(255, 255, 255));
-        jCheckBox1.setText("Remember me");
+        jCheckBox1.setText("Show password");
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCheckBox1ActionPerformed(evt);
@@ -173,16 +179,107 @@ public class LoginPage extends javax.swing.JFrame {
     }//GEN-LAST:event_UsernameTextFieldActionPerformed
 
     private void LoginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginButtonActionPerformed
-        // TODO add your handling code here:
+        String SUrl, SUser, SPass;
+        SUrl = "jdbc:MYSQL://localhost:3306/employee_database";
+        SUser = "root";
+        SPass = "";
+        String query = null;
         
-        setVisible(false);    
-        new DashBoardPage().setVisible(true);
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(SUrl,SUser,SPass);
+            Statement st = con.createStatement();
+            
+            String username = UsernameTextField.getText();
+            String password = String.valueOf(PasswordField.getPassword());
+            
+            query = "SELECT * FROM users WHERE BINARY Username = '"+username+"' and Password = '"+password+"' ";
+            
+            ResultSet rs = st.executeQuery(query);
+            
+            String firstname = null;
+            String lastname = null;
+            String role = null;
+            String id = null;
+            String bday = null;
+            String phoneNum = null;
+            String SSS = null;
+            String Philhealth = null;
+            String TIN = null;
+            String Pagibig = null;
+            String position = null;
+            String salary = null;
+            String grossrate = null;
+            String hourlyrate = null;
+            String status = null;
+            
+            
+
+           
+            if(username.isBlank() || password.isBlank()|| username.isBlank() && password.isBlank()){
+                showMessageDialog(null,"Please fillup all information","Error",JOptionPane.ERROR_MESSAGE);
+            }
+            else{
+                if(rs.next()){
+                    role = rs.getString("Role");
+                    id = String.valueOf(rs.getInt("id"));
+                    firstname = rs.getString("First Name");
+                    lastname = rs.getString("Last Name");
+                    bday = rs.getString("Birthdate");
+                    phoneNum = rs.getString("Phone_number");
+                    SSS = rs.getString("SSS");
+                    Philhealth = rs.getString("Philhealth");
+                    TIN = rs.getString("TIN");
+                    Pagibig = rs.getString("Pagibig");
+                    position = rs.getString("Position");
+                    salary = rs.getString("Basic_salary");
+                    grossrate = rs.getString("Gross_semi_monthly_rate");
+                    hourlyrate = rs.getString("Hourly_rate");
+                    status = rs.getString("Status");
+                    
+                    
+                if(role.equals("Admin")){
+                    dispose();
+                    DashBoardPageAdmin adminpage = new DashBoardPageAdmin(firstname,lastname,id,bday,
+                    phoneNum,SSS,Philhealth,TIN,Pagibig,position,salary,grossrate,hourlyrate,status);
+                    adminpage.setVisible(true);
+                            
+
+                    
+                }else{
+                    dispose();
+                    DashBoardPageEmployee employeepage = new DashBoardPageEmployee(firstname,lastname,id,bday,
+                    phoneNum,SSS,Philhealth,TIN,Pagibig,position,salary,grossrate,hourlyrate,status);
+                    employeepage.setVisible(true);
+                }
+
+                }else{
+                    showMessageDialog(null,"Username or password is incorrect","Error",JOptionPane.ERROR_MESSAGE);
+                    UsernameTextField.setText("");
+                    PasswordField.setText("");        
+                }
+            }
+            con.close();
+            st.close();
+            rs.close();
+            
+            
+            
+            
+        }catch(Exception e){
+            System.out.println("Error: "+ e.getMessage());
+        }
+
         
         
     }//GEN-LAST:event_LoginButtonActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-        // TODO add your handling code here:
+        if(jCheckBox1.isSelected()){
+            PasswordField.setEchoChar((char)0);
+        }else{
+            PasswordField.setEchoChar('\u2022');
+        }
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     /**
