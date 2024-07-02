@@ -5,6 +5,10 @@
 package payrollsystem;
 
 
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -12,6 +16,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.showMessageDialog;
+import javax.swing.JPanel;
 
 /**
  *
@@ -25,7 +30,21 @@ public class LoginPage extends javax.swing.JFrame {
     public LoginPage() {
         initComponents();
     }
-
+class PayrollSystem extends JPanel{
+        
+        protected void paintComponent(Graphics g){
+            Graphics2D g2d = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
+            
+            Color Color1 = new Color(1,30,30);
+            Color Color2 = new Color(0,102,102);
+            GradientPaint gp = new GradientPaint(0,0,Color1,180,height,Color2);
+            g2d.setPaint(gp);
+            g2d.fillRect(0,0,width,height);
+            
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -37,15 +56,16 @@ public class LoginPage extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         MotorPhLabel = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         UsernameTextField = new javax.swing.JTextField();
         UsernameLabel = new javax.swing.JLabel();
         PassworLabel = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         PasswordField = new javax.swing.JPasswordField();
         LoginButton = new javax.swing.JButton();
         MotorPhLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         jCheckBox1 = new javax.swing.JCheckBox();
+        jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -55,48 +75,69 @@ public class LoginPage extends javax.swing.JFrame {
         setResizable(false);
         getContentPane().setLayout(null);
 
-        jPanel1.setBackground(new java.awt.Color(1, 30, 30));
+        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel1.setLayout(null);
 
         MotorPhLabel.setBackground(new java.awt.Color(255, 204, 51));
         MotorPhLabel.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
         MotorPhLabel.setForeground(new java.awt.Color(255, 255, 255));
         MotorPhLabel.setText("MotorPH Payroll");
+        jPanel1.add(MotorPhLabel);
+        MotorPhLabel.setBounds(37, 13, 290, 39);
 
-        UsernameTextField.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/profile (1).png"))); // NOI18N
+        jPanel1.add(jLabel2);
+        jLabel2.setBounds(280, 180, 31, 50);
+
+        UsernameTextField.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         UsernameTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 UsernameTextFieldActionPerformed(evt);
             }
         });
+        jPanel1.add(UsernameTextField);
+        UsernameTextField.setBounds(29, 183, 290, 43);
 
         UsernameLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         UsernameLabel.setForeground(new java.awt.Color(255, 255, 255));
         UsernameLabel.setText("Username");
+        jPanel1.add(UsernameLabel);
+        UsernameLabel.setBounds(30, 150, 62, 20);
 
         PassworLabel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         PassworLabel.setForeground(new java.awt.Color(255, 255, 255));
         PassworLabel.setText("Password");
+        jPanel1.add(PassworLabel);
+        PassworLabel.setBounds(30, 240, 58, 20);
 
-        PasswordField.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/unlock (1).png"))); // NOI18N
+        jPanel1.add(jLabel3);
+        jLabel3.setBounds(280, 260, 30, 70);
+
+        PasswordField.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
+        jPanel1.add(PasswordField);
+        PasswordField.setBounds(29, 270, 290, 44);
 
         LoginButton.setBackground(new java.awt.Color(0, 153, 153));
         LoginButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         LoginButton.setForeground(new java.awt.Color(255, 255, 255));
         LoginButton.setText("Login");
         LoginButton.setBorder(null);
+        LoginButton.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        LoginButton.setFocusable(false);
         LoginButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 LoginButtonActionPerformed(evt);
             }
         });
+        jPanel1.add(LoginButton);
+        LoginButton.setBounds(29, 368, 290, 40);
 
         MotorPhLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
         MotorPhLabel1.setForeground(new java.awt.Color(255, 255, 255));
         MotorPhLabel1.setText("System");
-
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/username.png"))); // NOI18N
-
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/locked (2).png"))); // NOI18N
+        jPanel1.add(MotorPhLabel1);
+        MotorPhLabel1.setBounds(111, 58, 121, 39);
 
         jCheckBox1.setBackground(new java.awt.Color(33, 33, 33));
         jCheckBox1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -107,68 +148,32 @@ public class LoginPage extends javax.swing.JFrame {
                 jCheckBox1ActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addComponent(MotorPhLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(111, 111, 111)
-                        .addComponent(MotorPhLabel1)))
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(LoginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(UsernameLabel)
-                        .addComponent(PassworLabel)
-                        .addComponent(PasswordField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
-                        .addComponent(UsernameTextField, javax.swing.GroupLayout.Alignment.TRAILING))
-                    .addComponent(jCheckBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(31, 31, 31))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(13, 13, 13)
-                .addComponent(MotorPhLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(MotorPhLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(60, 60, 60)
-                .addComponent(UsernameLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(UsernameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(PassworLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(PasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBox1)
-                .addGap(18, 18, 18)
-                .addComponent(LoginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(72, Short.MAX_VALUE))
-        );
+        jPanel1.add(jCheckBox1);
+        jCheckBox1.setBounds(30, 330, 123, 24);
 
         getContentPane().add(jPanel1);
         jPanel1.setBounds(0, 0, 350, 480);
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/finale (3).png"))); // NOI18N
+        jPanel2.setBackground(new java.awt.Color(0, 27, 27));
+        jPanel2.setForeground(new java.awt.Color(0, 51, 51));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 260, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 60, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(jPanel2);
+        jPanel2.setBounds(440, 30, 260, 60);
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/lol.jpg"))); // NOI18N
         getContentPane().add(jLabel1);
-        jLabel1.setBounds(350, 0, 470, 530);
+        jLabel1.setBounds(340, 0, 460, 480);
 
         pack();
         setLocationRelativeTo(null);
@@ -331,5 +336,6 @@ public class LoginPage extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
 }

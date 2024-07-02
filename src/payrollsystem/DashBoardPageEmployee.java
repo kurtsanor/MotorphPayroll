@@ -6,14 +6,23 @@ package payrollsystem;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.HeadlessException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.showMessageDialog;
+import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -28,16 +37,38 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
      */
     private Color defaultColor, clickedColor;
     private int empcount = 0;
+    private LocalTime currentTime;
+    private String formattedTime;
+    private String formattedDate;
+    private String dayOfWeek;
+    private String firstname, lastname, ids, bday, phones, sss, phil, tin, pagibig, position, Salary, gross, hourly, empstatus;
+    private Color defaultcolor;
+    private Color changedcolor;
+    private Font fontenter;
+    private Font fontleave;
+    private boolean isEmployee;
+    private double totalHours;
+    private int leave_totals;
+    private int absents;
+    
     
     public DashBoardPageEmployee(String fname,String lname,String id,String birthday,String phone,
             String SSS,String philhealth,String TIN,String Pagibig,String pos,String salary,
             String grossrate, String hourlyrate,String status) {
+        
         initComponents();
         countEmployees();
+        displayTime();
+        
+        defaultcolor = new Color(255,255,255);
+        changedcolor = new Color(190,235,9);
+        fontenter = new Font("Segoe UI Emoji",Font.BOLD,15);
+        fontleave = new Font("Segoe UI Emoji",Font.BOLD,14);
+      
+        isEmployee = false;
         emp_countlbl.setText(String.valueOf(empcount));
-        clickedColor = new Color(0,153,153);
-        defaultColor = new Color(1,30,30);
-        Dashboard_Panel.setBackground(clickedColor);
+        
+        
         Welcome_label.setText("Welcome back, "+fname+"!");
         fullname.setText(fname+" "+lname);
         status_label.setText("Status: "+status);
@@ -53,8 +84,12 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         hourlyratelabel.setText("Hourly Rate: "+hourlyrate);
         grossratelabel.setText("Gross semi monthly rate: "+grossrate);
         
+        initializevariables(fname,lname,id,birthday,phone,SSS,philhealth,
+                TIN,Pagibig,pos,salary,grossrate,hourlyrate,status);
+        loadLeaveTable();
+        count_total_hours_worked();
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -65,32 +100,40 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        Dashboard_Panel = new javax.swing.JPanel();
+        jPanel2 = new PayrollSystem();
         jLabel2 = new javax.swing.JLabel();
-        Profile_Panel = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        Payroll_panel = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        Leave_panel = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jPanel8 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
-        jPanel3 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jPanel3 = new PayrollSystem();
+        title = new javax.swing.JLabel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         Dashboard_Tab = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
+        jPanel4 = new PayrollSystem();
         jLabelemp = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         emp_countlbl = new javax.swing.JLabel();
         Welcome_label = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
+        jLabel35 = new javax.swing.JLabel();
+        jLabel34 = new javax.swing.JLabel();
+        hours_txt = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
-        jPanel6 = new javax.swing.JPanel();
+        leave_total = new javax.swing.JLabel();
+        leavelbl = new javax.swing.JLabel();
+        jLabel36 = new javax.swing.JLabel();
+        jPanel6 = new PayrollSystem();
+        jLabel26 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        jLabel37 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
+        jLabel38 = new javax.swing.JLabel();
+        jLabelemp1 = new javax.swing.JLabel();
+        absent_count = new javax.swing.JLabel();
         Profile_tab = new javax.swing.JPanel();
         jLabel14 = new javax.swing.JLabel();
         fullname = new javax.swing.JLabel();
@@ -98,39 +141,69 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         status_label = new javax.swing.JLabel();
         bdaylabel = new javax.swing.JLabel();
         positionlabel = new javax.swing.JLabel();
-        jPanel13 = new javax.swing.JPanel();
-        jPanel14 = new javax.swing.JPanel();
+        jPanel13 = new PayrollSystem();
+        jPanel14 = new PayrollSystem();
         jLabel17 = new javax.swing.JLabel();
         phonelabel = new javax.swing.JLabel();
         ssslabel = new javax.swing.JLabel();
         philhealthlabbel = new javax.swing.JLabel();
         pagibiglabel = new javax.swing.JLabel();
         tinlabel = new javax.swing.JLabel();
-        jPanel15 = new javax.swing.JPanel();
+        jPanel15 = new PayrollSystem();
         grossratelabel = new javax.swing.JLabel();
         hourlyratelabel = new javax.swing.JLabel();
         basicsalarylabel = new javax.swing.JLabel();
-        jPanel16 = new javax.swing.JPanel();
+        jPanel16 = new PayrollSystem();
         jLabel16 = new javax.swing.JLabel();
+        editprofile = new javax.swing.JButton();
         Payroll_tab = new javax.swing.JPanel();
-        jButton4 = new javax.swing.JButton();
+        jPanel10 = new PayrollSystem();
+        jLabel4 = new javax.swing.JLabel();
+        selected_month = new javax.swing.JComboBox<>();
+        jPanel11 = new PayrollSystem();
+        jLabel9 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        attenance_table = new javax.swing.JTable();
+        jPanel12 = new PayrollSystem();
+        hoursworked_lbl = new javax.swing.JLabel();
+        hourlyrate_lbl = new javax.swing.JLabel();
+        grosspay_lbl = new javax.swing.JLabel();
+        jPanel8 = new PayrollSystem();
+        jLabel22 = new javax.swing.JLabel();
+        jLabel28 = new javax.swing.JLabel();
+        netpay_lbl = new javax.swing.JLabel();
+        jPanel20 = new PayrollSystem();
+        jLabel24 = new javax.swing.JLabel();
+        jLabel27 = new javax.swing.JLabel();
+        SSS_lbl = new javax.swing.JLabel();
+        philhealth_lbl = new javax.swing.JLabel();
+        pagibig_lbl = new javax.swing.JLabel();
+        tax_lbl = new javax.swing.JLabel();
+        net_field = new javax.swing.JTextField();
+        hoursworked_field = new javax.swing.JTextField();
+        hourly_field = new javax.swing.JTextField();
+        gross_field = new javax.swing.JTextField();
+        SSS_field = new javax.swing.JTextField();
+        phil_field = new javax.swing.JTextField();
+        pagibig_field = new javax.swing.JTextField();
+        tax_field = new javax.swing.JTextField();
         Leave_tab = new javax.swing.JPanel();
         Name_label1 = new javax.swing.JLabel();
-        jPanel17 = new javax.swing.JPanel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        jPanel17 = new PayrollSystem();
+        leave_type_cmbobox = new javax.swing.JComboBox<>();
         jLabel19 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        start_date = new javax.swing.JTextField();
         jLabel21 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        end_date = new javax.swing.JTextField();
         jLabel20 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        reasontxtfield = new javax.swing.JTextField();
         Name_label2 = new javax.swing.JLabel();
-        jPanel18 = new javax.swing.JPanel();
-        jPanel19 = new javax.swing.JPanel();
+        jPanel18 = new PayrollSystem();
+        jPanel19 = new PayrollSystem();
+        reqleave_bttn = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
-        jButton1 = new javax.swing.JButton();
+        leave_table = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(764, 450));
@@ -142,144 +215,78 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(1, 30, 30));
         jPanel2.setLayout(null);
 
-        Dashboard_Panel.setBackground(new java.awt.Color(1, 30, 30));
-        Dashboard_Panel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                Dashboard_PanelMousePressed(evt);
-            }
-        });
-
         jLabel2.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/home (2) (1).png"))); // NOI18N
         jLabel2.setText("Dashboard");
-
-        javax.swing.GroupLayout Dashboard_PanelLayout = new javax.swing.GroupLayout(Dashboard_Panel);
-        Dashboard_Panel.setLayout(Dashboard_PanelLayout);
-        Dashboard_PanelLayout.setHorizontalGroup(
-            Dashboard_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Dashboard_PanelLayout.createSequentialGroup()
-                .addContainerGap(25, Short.MAX_VALUE)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
-        );
-        Dashboard_PanelLayout.setVerticalGroup(
-            Dashboard_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
-        );
-
-        jPanel2.add(Dashboard_Panel);
-        Dashboard_Panel.setBounds(0, 110, 202, 40);
-
-        Profile_Panel.setBackground(new java.awt.Color(1, 30, 30));
-        Profile_Panel.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jLabel2MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jLabel2MouseExited(evt);
+            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                Profile_PanelMousePressed(evt);
+                jLabel2MousePressed(evt);
             }
         });
+        jPanel2.add(jLabel2);
+        jLabel2.setBounds(30, 150, 157, 28);
 
         jLabel3.setBackground(new java.awt.Color(255, 255, 153));
         jLabel3.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/user (2) (1).png"))); // NOI18N
         jLabel3.setText("Profile");
-
-        javax.swing.GroupLayout Profile_PanelLayout = new javax.swing.GroupLayout(Profile_Panel);
-        Profile_Panel.setLayout(Profile_PanelLayout);
-        Profile_PanelLayout.setHorizontalGroup(
-            Profile_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Profile_PanelLayout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(26, Short.MAX_VALUE))
-        );
-        Profile_PanelLayout.setVerticalGroup(
-            Profile_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
-        );
-
-        jPanel2.add(Profile_Panel);
-        Profile_Panel.setBounds(0, 160, 202, 40);
-
-        Payroll_panel.setBackground(new java.awt.Color(1, 30, 30));
-        Payroll_panel.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jLabel3MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jLabel3MouseExited(evt);
+            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                Payroll_panelMousePressed(evt);
+                jLabel3MousePressed(evt);
             }
         });
+        jPanel2.add(jLabel3);
+        jLabel3.setBounds(30, 200, 151, 40);
 
         jLabel5.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/salary (1).png"))); // NOI18N
         jLabel5.setText("Payroll");
-
-        javax.swing.GroupLayout Payroll_panelLayout = new javax.swing.GroupLayout(Payroll_panel);
-        Payroll_panel.setLayout(Payroll_panelLayout);
-        Payroll_panelLayout.setHorizontalGroup(
-            Payroll_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Payroll_panelLayout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(32, Short.MAX_VALUE))
-        );
-        Payroll_panelLayout.setVerticalGroup(
-            Payroll_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Payroll_panelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        jPanel2.add(Payroll_panel);
-        Payroll_panel.setBounds(0, 210, 202, 40);
-
-        Leave_panel.setBackground(new java.awt.Color(1, 30, 30));
-        Leave_panel.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jLabel5MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jLabel5MouseExited(evt);
+            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                Leave_panelMousePressed(evt);
+                jLabel5MousePressed(evt);
             }
         });
+        jPanel2.add(jLabel5);
+        jLabel5.setBounds(30, 260, 144, 28);
 
         jLabel6.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/exit (1).png"))); // NOI18N
-        jLabel6.setText("Leave Request");
-
-        javax.swing.GroupLayout Leave_panelLayout = new javax.swing.GroupLayout(Leave_panel);
-        Leave_panel.setLayout(Leave_panelLayout);
-        Leave_panelLayout.setHorizontalGroup(
-            Leave_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Leave_panelLayout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(32, Short.MAX_VALUE))
-        );
-        Leave_panelLayout.setVerticalGroup(
-            Leave_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Leave_panelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        jPanel2.add(Leave_panel);
-        Leave_panel.setBounds(0, 260, 202, 40);
-
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/motorcycle (1).png"))); // NOI18N
-        jPanel2.add(jLabel4);
-        jLabel4.setBounds(70, 50, 60, 40);
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI Emoji", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("MotorPH");
-        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        jLabel1.setFocusable(false);
-        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        jPanel2.add(jLabel1);
-        jLabel1.setBounds(50, 10, 77, 30);
-
-        jPanel8.setBackground(new java.awt.Color(1, 30, 30));
+        jLabel6.setText("Request Leave");
+        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jLabel6MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jLabel6MouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jLabel6MousePressed(evt);
+            }
+        });
+        jPanel2.add(jLabel6);
+        jLabel6.setBounds(30, 320, 144, 28);
 
         jLabel8.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
@@ -296,40 +303,47 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
                 jLabel8MousePressed(evt);
             }
         });
+        jPanel2.add(jLabel8);
+        jLabel8.setBounds(50, 420, 85, 20);
 
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(49, 49, 49)
-                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(66, Short.MAX_VALUE))
-        );
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("MotorPH");
+        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        jLabel1.setFocusable(false);
+        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        jPanel2.add(jLabel1);
+        jLabel1.setBounds(40, 10, 110, 30);
 
-        jPanel2.add(jPanel8);
-        jPanel8.setBounds(0, 410, 200, 40);
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel13.setIcon(new javax.swing.ImageIcon("C:\\Users\\keith\\Downloads\\finalwa (5).png")); // NOI18N
+        jPanel2.add(jLabel13);
+        jLabel13.setBounds(10, 50, 180, 80);
 
         jPanel1.add(jPanel2);
         jPanel2.setBounds(0, 0, 200, 470);
 
         jPanel3.setBackground(new java.awt.Color(0, 153, 153));
 
+        title.setFont(new java.awt.Font("Segoe UI Emoji", 1, 18)); // NOI18N
+        title.setForeground(new java.awt.Color(255, 255, 255));
+        title.setText("Dashboard");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 590, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 319, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(256, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 50, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(title)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel3);
@@ -345,7 +359,7 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         jLabelemp.setForeground(new java.awt.Color(255, 255, 255));
         jLabelemp.setText("Total Employees");
 
-        jLabel10.setIcon(new javax.swing.ImageIcon("C:\\Users\\keith\\OneDrive\\Desktop\\Icons\\employees (1) (1).png")); // NOI18N
+        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/employees (1) (1).png"))); // NOI18N
 
         emp_countlbl.setFont(new java.awt.Font("Segoe UI Emoji", 1, 24)); // NOI18N
         emp_countlbl.setForeground(new java.awt.Color(255, 255, 255));
@@ -394,66 +408,129 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         Dashboard_Tab.add(jLabel7);
         jLabel7.setBounds(30, 110, 254, 16);
 
-        jPanel9.setBackground(new java.awt.Color(153, 204, 0));
+        jPanel9.setBackground(new java.awt.Color(204, 255, 0));
+
+        jLabel35.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/clock (1).png"))); // NOI18N
+
+        jLabel34.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
+        jLabel34.setText("Hours Worked");
+
+        hours_txt.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
+        hours_txt.setText("jLabel35");
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addContainerGap(39, Short.MAX_VALUE)
+                .addComponent(jLabel34, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(31, 31, 31))
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(jLabel35)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(hours_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 72, Short.MAX_VALUE)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel35)
+                    .addComponent(hours_txt))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel34, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         Dashboard_Tab.add(jPanel9);
         jPanel9.setBounds(400, 140, 170, 72);
 
-        jPanel5.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel5.setBackground(new java.awt.Color(255, 102, 102));
+
+        leave_total.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
+        leave_total.setForeground(new java.awt.Color(0, 0, 0));
+        leave_total.setText("jLabel35");
+
+        leavelbl.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
+        leavelbl.setForeground(new java.awt.Color(0, 0, 0));
+        leavelbl.setText("Leave Requests");
+
+        jLabel36.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/leave (1).png"))); // NOI18N
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 170, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(37, Short.MAX_VALUE)
+                .addComponent(leavelbl, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(33, 33, 33))
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(jLabel36, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(leave_total, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 70, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel36)
+                    .addComponent(leave_total, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(leavelbl, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15))
         );
 
         Dashboard_Tab.add(jPanel5);
         jPanel5.setBounds(400, 220, 170, 70);
 
         jPanel6.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel6.setLayout(null);
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 220, Short.MAX_VALUE)
-        );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 130, Short.MAX_VALUE)
-        );
+        jLabel26.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel26.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel26.setText("jLabel26");
+        jPanel6.add(jLabel26);
+        jLabel26.setBounds(100, 80, 125, 22);
+
+        jLabel25.setFont(new java.awt.Font("Segoe UI Emoji", 1, 24)); // NOI18N
+        jLabel25.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel25.setText("Time");
+        jPanel6.add(jLabel25);
+        jLabel25.setBounds(90, 50, 125, 40);
+
+        jLabel37.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/calendar (1).png"))); // NOI18N
+        jPanel6.add(jLabel37);
+        jLabel37.setBounds(20, 0, 70, 70);
 
         Dashboard_Tab.add(jPanel6);
         jPanel6.setBounds(30, 310, 220, 130);
 
-        jPanel7.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel7.setBackground(new java.awt.Color(102, 102, 255));
+        jPanel7.setLayout(null);
 
-        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 310, Short.MAX_VALUE)
-        );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 130, Short.MAX_VALUE)
-        );
+        jLabel38.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/absence (2).png"))); // NOI18N
+        jPanel7.add(jLabel38);
+        jLabel38.setBounds(20, 10, 70, 70);
+
+        jLabelemp1.setBackground(new java.awt.Color(255, 255, 255));
+        jLabelemp1.setFont(new java.awt.Font("Segoe UI Emoji", 1, 24)); // NOI18N
+        jLabelemp1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabelemp1.setText("Absences");
+        jPanel7.add(jLabelemp1);
+        jLabelemp1.setBounds(100, 60, 140, 34);
+
+        absent_count.setBackground(new java.awt.Color(255, 255, 255));
+        absent_count.setFont(new java.awt.Font("Segoe UI Emoji", 1, 24)); // NOI18N
+        absent_count.setForeground(new java.awt.Color(255, 255, 255));
+        absent_count.setText("25");
+        jPanel7.add(absent_count);
+        absent_count.setBounds(270, 10, 28, 34);
 
         Dashboard_Tab.add(jPanel7);
         jPanel7.setBounds(260, 310, 310, 130);
@@ -465,32 +542,32 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
 
         jLabel14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/user (4) (2).png"))); // NOI18N
         Profile_tab.add(jLabel14);
-        jLabel14.setBounds(35, 78, 150, 150);
+        jLabel14.setBounds(20, 80, 150, 150);
 
         fullname.setFont(new java.awt.Font("Segoe UI Emoji", 1, 24)); // NOI18N
         fullname.setText("Manuel Garcia III");
         Profile_tab.add(fullname);
-        fullname.setBounds(210, 80, 360, 40);
+        fullname.setBounds(190, 80, 330, 40);
 
         id_label.setFont(new java.awt.Font("Segoe UI Emoji", 0, 15)); // NOI18N
         id_label.setText("Employee # : ");
         Profile_tab.add(id_label);
-        id_label.setBounds(210, 120, 350, 20);
+        id_label.setBounds(190, 120, 350, 20);
 
         status_label.setFont(new java.awt.Font("Segoe UI Emoji", 0, 15)); // NOI18N
         status_label.setText("Status:");
         Profile_tab.add(status_label);
-        status_label.setBounds(210, 150, 350, 20);
+        status_label.setBounds(190, 150, 350, 20);
 
         bdaylabel.setFont(new java.awt.Font("Segoe UI Emoji", 0, 15)); // NOI18N
         bdaylabel.setText("Birthdate:");
         Profile_tab.add(bdaylabel);
-        bdaylabel.setBounds(210, 180, 370, 20);
+        bdaylabel.setBounds(190, 180, 370, 20);
 
         positionlabel.setFont(new java.awt.Font("Segoe UI Emoji", 0, 15)); // NOI18N
         positionlabel.setText("Position:");
         Profile_tab.add(positionlabel);
-        positionlabel.setBounds(210, 210, 360, 20);
+        positionlabel.setBounds(190, 210, 360, 20);
 
         jPanel13.setBackground(new java.awt.Color(0, 153, 153));
 
@@ -511,6 +588,7 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         jPanel14.setBackground(new java.awt.Color(204, 204, 204));
 
         jLabel17.setFont(new java.awt.Font("Segoe UI Emoji", 1, 18)); // NOI18N
+        jLabel17.setForeground(new java.awt.Color(255, 255, 255));
         jLabel17.setText("Numbers");
 
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
@@ -591,6 +669,7 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         jPanel16.setBackground(new java.awt.Color(204, 204, 204));
 
         jLabel16.setFont(new java.awt.Font("Segoe UI Emoji", 1, 18)); // NOI18N
+        jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jLabel16.setText("Compensation Details");
 
         javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
@@ -612,28 +691,295 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         Profile_tab.add(jPanel16);
         jPanel16.setBounds(310, 270, 270, 30);
 
+        editprofile.setBackground(new java.awt.Color(245, 245, 245));
+        editprofile.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
+        editprofile.setForeground(new java.awt.Color(255, 255, 255));
+        editprofile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/edit (2) (1).png"))); // NOI18N
+        editprofile.setBorder(null);
+        editprofile.setBorderPainted(false);
+        editprofile.setFocusPainted(false);
+        editprofile.setFocusable(false);
+        editprofile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editprofileActionPerformed(evt);
+            }
+        });
+        Profile_tab.add(editprofile);
+        editprofile.setBounds(540, 70, 40, 40);
+
         jTabbedPane1.addTab("tab2", Profile_tab);
 
         Payroll_tab.setBackground(new java.awt.Color(245, 245, 245));
+        Payroll_tab.setLayout(null);
 
-        jButton4.setText("Tab4");
+        jPanel10.setBackground(new java.awt.Color(0, 51, 51));
 
-        javax.swing.GroupLayout Payroll_tabLayout = new javax.swing.GroupLayout(Payroll_tab);
-        Payroll_tab.setLayout(Payroll_tabLayout);
-        Payroll_tabLayout.setHorizontalGroup(
-            Payroll_tabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Payroll_tabLayout.createSequentialGroup()
-                .addGap(227, 227, 227)
-                .addComponent(jButton4)
-                .addContainerGap(291, Short.MAX_VALUE))
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("PAYSLIP");
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                .addContainerGap(69, Short.MAX_VALUE)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(38, 38, 38))
         );
-        Payroll_tabLayout.setVerticalGroup(
-            Payroll_tabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Payroll_tabLayout.createSequentialGroup()
-                .addContainerGap(302, Short.MAX_VALUE)
-                .addComponent(jButton4)
-                .addGap(150, 150, 150))
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(18, Short.MAX_VALUE))
         );
+
+        Payroll_tab.add(jPanel10);
+        jPanel10.setBounds(270, 80, 300, 80);
+
+        selected_month.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        selected_month.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select Month to calculate", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" }));
+        selected_month.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                selected_monthItemStateChanged(evt);
+            }
+        });
+        Payroll_tab.add(selected_month);
+        selected_month.setBounds(20, 120, 230, 40);
+
+        jPanel11.setBackground(new java.awt.Color(0, 51, 51));
+
+        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel9.setText("Pay Period:");
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
+                .addContainerGap(75, Short.MAX_VALUE)
+                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(61, 61, 61))
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        Payroll_tab.add(jPanel11);
+        jPanel11.setBounds(20, 80, 230, 30);
+
+        attenance_table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Date", "Time In", "Time Out"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        attenance_table.setShowGrid(true);
+        attenance_table.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(attenance_table);
+        if (attenance_table.getColumnModel().getColumnCount() > 0) {
+            attenance_table.getColumnModel().getColumn(0).setResizable(false);
+            attenance_table.getColumnModel().getColumn(1).setResizable(false);
+            attenance_table.getColumnModel().getColumn(2).setResizable(false);
+        }
+
+        Payroll_tab.add(jScrollPane1);
+        jScrollPane1.setBounds(20, 190, 550, 130);
+
+        jPanel12.setBackground(new java.awt.Color(0, 51, 51));
+
+        javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
+        jPanel12.setLayout(jPanel12Layout);
+        jPanel12Layout.setHorizontalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 550, Short.MAX_VALUE)
+        );
+        jPanel12Layout.setVerticalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 10, Short.MAX_VALUE)
+        );
+
+        Payroll_tab.add(jPanel12);
+        jPanel12.setBounds(20, 170, 550, 10);
+
+        hoursworked_lbl.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        hoursworked_lbl.setText("Hours Worked");
+        Payroll_tab.add(hoursworked_lbl);
+        hoursworked_lbl.setBounds(20, 370, 120, 20);
+
+        hourlyrate_lbl.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        hourlyrate_lbl.setText("Hourly Rate");
+        Payroll_tab.add(hourlyrate_lbl);
+        hourlyrate_lbl.setBounds(20, 390, 100, 20);
+
+        grosspay_lbl.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        grosspay_lbl.setText("Gross Pay");
+        Payroll_tab.add(grosspay_lbl);
+        grosspay_lbl.setBounds(20, 410, 110, 20);
+
+        jPanel8.setBackground(new java.awt.Color(0, 51, 51));
+
+        jLabel22.setFont(new java.awt.Font("Yu Gothic", 1, 16)); // NOI18N
+        jLabel22.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel22.setText("Deductions");
+
+        jLabel28.setFont(new java.awt.Font("Yu Gothic", 1, 16)); // NOI18N
+        jLabel28.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel28.setText("Amount");
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 81, Short.MAX_VALUE)
+                .addComponent(jLabel28)
+                .addContainerGap())
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
+                .addGap(0, 6, Short.MAX_VALUE)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        Payroll_tab.add(jPanel8);
+        jPanel8.setBounds(310, 330, 260, 30);
+
+        netpay_lbl.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        netpay_lbl.setText("Net Pay");
+        Payroll_tab.add(netpay_lbl);
+        netpay_lbl.setBounds(20, 430, 110, 20);
+
+        jPanel20.setBackground(new java.awt.Color(0, 51, 51));
+
+        jLabel24.setFont(new java.awt.Font("Yu Gothic", 1, 16)); // NOI18N
+        jLabel24.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel24.setText("Amount");
+
+        jLabel27.setFont(new java.awt.Font("Yu Gothic", 1, 16)); // NOI18N
+        jLabel27.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel27.setText("Earnings");
+
+        javax.swing.GroupLayout jPanel20Layout = new javax.swing.GroupLayout(jPanel20);
+        jPanel20.setLayout(jPanel20Layout);
+        jPanel20Layout.setHorizontalGroup(
+            jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel20Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel27, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
+                .addComponent(jLabel24)
+                .addContainerGap())
+        );
+        jPanel20Layout.setVerticalGroup(
+            jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel20Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel27, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        Payroll_tab.add(jPanel20);
+        jPanel20.setBounds(20, 330, 250, 30);
+
+        SSS_lbl.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        SSS_lbl.setText("SSS Deduction");
+        Payroll_tab.add(SSS_lbl);
+        SSS_lbl.setBounds(310, 370, 120, 20);
+
+        philhealth_lbl.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        philhealth_lbl.setText("Philhealth Deduction");
+        Payroll_tab.add(philhealth_lbl);
+        philhealth_lbl.setBounds(310, 390, 140, 20);
+
+        pagibig_lbl.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        pagibig_lbl.setText("Pagibig Deduction");
+        Payroll_tab.add(pagibig_lbl);
+        pagibig_lbl.setBounds(310, 410, 130, 20);
+
+        tax_lbl.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        tax_lbl.setText("Withholding Tax");
+        Payroll_tab.add(tax_lbl);
+        tax_lbl.setBounds(310, 430, 120, 20);
+
+        net_field.setEditable(false);
+        net_field.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        net_field.setEnabled(false);
+        net_field.setFocusable(false);
+        Payroll_tab.add(net_field);
+        net_field.setBounds(151, 430, 120, 22);
+
+        hoursworked_field.setEditable(false);
+        hoursworked_field.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        hoursworked_field.setEnabled(false);
+        hoursworked_field.setFocusable(false);
+        Payroll_tab.add(hoursworked_field);
+        hoursworked_field.setBounds(151, 370, 120, 22);
+
+        hourly_field.setEditable(false);
+        hourly_field.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        hourly_field.setEnabled(false);
+        hourly_field.setFocusable(false);
+        Payroll_tab.add(hourly_field);
+        hourly_field.setBounds(151, 390, 120, 22);
+
+        gross_field.setEditable(false);
+        gross_field.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        gross_field.setEnabled(false);
+        gross_field.setFocusable(false);
+        Payroll_tab.add(gross_field);
+        gross_field.setBounds(151, 410, 120, 22);
+
+        SSS_field.setEditable(false);
+        SSS_field.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        SSS_field.setEnabled(false);
+        SSS_field.setFocusable(false);
+        Payroll_tab.add(SSS_field);
+        SSS_field.setBounds(460, 370, 110, 22);
+
+        phil_field.setEditable(false);
+        phil_field.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        phil_field.setEnabled(false);
+        phil_field.setFocusable(false);
+        Payroll_tab.add(phil_field);
+        phil_field.setBounds(460, 390, 110, 22);
+
+        pagibig_field.setEditable(false);
+        pagibig_field.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        pagibig_field.setEnabled(false);
+        pagibig_field.setFocusable(false);
+        Payroll_tab.add(pagibig_field);
+        pagibig_field.setBounds(460, 410, 110, 22);
+
+        tax_field.setEditable(false);
+        tax_field.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        tax_field.setEnabled(false);
+        tax_field.setFocusable(false);
+        Payroll_tab.add(tax_field);
+        tax_field.setBounds(460, 430, 110, 22);
 
         jTabbedPane1.addTab("tab4", Payroll_tab);
 
@@ -661,9 +1007,9 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         Leave_tab.add(jPanel17);
         jPanel17.setBounds(20, 110, 250, 10);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        Leave_tab.add(jComboBox1);
-        jComboBox1.setBounds(30, 160, 240, 40);
+        leave_type_cmbobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Vacation Leave", "Sick Leave", "Maternity Leave", "Personal Leave", "Medical Leave" }));
+        Leave_tab.add(leave_type_cmbobox);
+        leave_type_cmbobox.setBounds(30, 160, 240, 40);
 
         jLabel19.setFont(new java.awt.Font("Segoe UI Emoji", 0, 12)); // NOI18N
         jLabel19.setText("Leave type*");
@@ -674,22 +1020,22 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         jLabel18.setText("Start date of Leave*");
         Leave_tab.add(jLabel18);
         jLabel18.setBounds(30, 220, 160, 20);
-        Leave_tab.add(jTextField1);
-        jTextField1.setBounds(30, 240, 240, 30);
+        Leave_tab.add(start_date);
+        start_date.setBounds(30, 240, 240, 30);
 
         jLabel21.setFont(new java.awt.Font("Segoe UI Emoji", 0, 12)); // NOI18N
         jLabel21.setText("End date of Leave*");
         Leave_tab.add(jLabel21);
         jLabel21.setBounds(30, 290, 130, 20);
-        Leave_tab.add(jTextField2);
-        jTextField2.setBounds(30, 310, 240, 30);
+        Leave_tab.add(end_date);
+        end_date.setBounds(30, 310, 240, 30);
 
         jLabel20.setFont(new java.awt.Font("Segoe UI Emoji", 0, 12)); // NOI18N
         jLabel20.setText("Reason of leave*");
         Leave_tab.add(jLabel20);
         jLabel20.setBounds(30, 360, 130, 20);
-        Leave_tab.add(jTextField3);
-        jTextField3.setBounds(30, 380, 240, 80);
+        Leave_tab.add(reasontxtfield);
+        reasontxtfield.setBounds(30, 380, 240, 80);
 
         Name_label2.setFont(new java.awt.Font("Segoe UI Emoji", 1, 24)); // NOI18N
         Name_label2.setText("Your requests");
@@ -726,23 +1072,57 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         );
 
         Leave_tab.add(jPanel19);
-        jPanel19.setBounds(330, 110, 250, 10);
+        jPanel19.setBounds(320, 110, 250, 10);
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+        reqleave_bttn.setBackground(new java.awt.Color(0, 102, 204));
+        reqleave_bttn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        reqleave_bttn.setForeground(new java.awt.Color(255, 255, 255));
+        reqleave_bttn.setText("Request Leave");
+        reqleave_bttn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reqleave_bttnActionPerformed(evt);
+            }
         });
-        jScrollPane2.setViewportView(jList1);
+        Leave_tab.add(reqleave_bttn);
+        reqleave_bttn.setBounds(440, 410, 120, 40);
+
+        jScrollPane2.setBackground(new java.awt.Color(255, 255, 255));
+
+        leave_table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Leave Type", "Start Date", "End Date", "Status"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        leave_table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        leave_table.setSelectionBackground(new java.awt.Color(0, 51, 51));
+        leave_table.setSelectionForeground(new java.awt.Color(255, 255, 255));
+        leave_table.setShowGrid(true);
+        leave_table.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(leave_table);
+        if (leave_table.getColumnModel().getColumnCount() > 0) {
+            leave_table.getColumnModel().getColumn(0).setResizable(false);
+            leave_table.getColumnModel().getColumn(0).setPreferredWidth(100);
+            leave_table.getColumnModel().getColumn(1).setResizable(false);
+            leave_table.getColumnModel().getColumn(1).setPreferredWidth(100);
+            leave_table.getColumnModel().getColumn(2).setResizable(false);
+            leave_table.getColumnModel().getColumn(2).setPreferredWidth(100);
+            leave_table.getColumnModel().getColumn(3).setResizable(false);
+            leave_table.getColumnModel().getColumn(3).setPreferredWidth(100);
+        }
 
         Leave_tab.add(jScrollPane2);
-        jScrollPane2.setBounds(330, 140, 240, 146);
-
-        jButton1.setBackground(new java.awt.Color(0, 153, 153));
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Request Leave");
-        Leave_tab.add(jButton1);
-        jButton1.setBounds(440, 420, 120, 30);
+        jScrollPane2.setBounds(320, 140, 250, 260);
 
         jTabbedPane1.addTab("tab5", Leave_tab);
 
@@ -763,7 +1143,95 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+    
+    private void initializevariables(String fname,String lname,String id,String birthday,String phone,
+            String SSS,String philhealth,String TIN,String Pagibig,String pos,String salary,
+            String grossrate, String hourlyrate,String status){
         
+        this.firstname = fname;
+        this.lastname = lname;
+        this.ids = id;
+        this.bday = birthday;
+        this.phones = phone;
+        this.sss = SSS;
+        this.phil = philhealth;
+        this.tin = TIN;
+        this.pagibig = Pagibig;
+        this.position = pos;
+        this.Salary = salary;
+        this.gross = grossrate;
+        this.hourly = hourlyrate;
+        this.empstatus = status;
+    }
+    class PayrollSystem extends JPanel{
+        
+        protected void paintComponent(Graphics g){
+            Graphics2D g2d = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
+            
+            Color Color1 = new Color(1,30,30);
+            Color Color2 = new Color(0,102,102);
+            GradientPaint gp = new GradientPaint(0,0,Color1,180,height,Color2);
+            g2d.setPaint(gp);
+            g2d.fillRect(0,0,width,height);
+            
+        }
+    }
+        private void count_total_hours_worked(){
+            String SUrl, SUser, SPass, query;
+            SUrl = "jdbc:MYSQL://localhost:3306/employee_database";
+            SUser = "root";
+            SPass = "";
+            String timeIn;
+            String timeOut;
+            
+            try{
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection con = DriverManager.getConnection(SUrl,SUser,SPass);
+                Statement st = con.createStatement();
+
+                query = "SELECT * FROM attendance where id="+ids;
+
+                ResultSet rs = st.executeQuery(query);
+                
+                while(rs.next()){
+                    timeIn = rs.getString("time_in");
+                    timeOut =rs.getString("time_out");
+                    if(timeIn.startsWith("0")){
+                        absents++;
+                    }
+                    double timein = Double.parseDouble(timeIn.replace(":", "."));
+                    double timeout = Double.parseDouble(timeOut.replace(":","."));
+                    double workhours = timeout-timein;
+                    totalHours += workhours;
+                }
+                String finale = String.format("%.0f",totalHours);
+                hours_txt.setText(finale);
+                absent_count.setText(""+absents);
+                
+                
+            }catch(Exception e){
+                System.out.println(e.getMessage());
+            }
+    }
+    private void displayTime(){
+        currentTime = LocalTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+        formattedTime = currentTime.format(formatter);
+        jLabel25.setText(formattedTime);
+        
+        LocalDate currentDate = LocalDate.now();
+        
+        
+        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+         formattedDate = currentDate.format(formatters);
+        
+        
+        dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+        jLabel26.setText(formattedDate);
+    }
+    
     private void countEmployees(){
         String query = null;
         String SUrl, SUser, SPass;
@@ -794,50 +1262,14 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
         }
     }
  
-    private void Payroll_panelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Payroll_panelMousePressed
-        Dashboard_Panel.setBackground(defaultColor);
-        Profile_Panel.setBackground(defaultColor);
-        
-        Payroll_panel.setBackground(clickedColor);
-        Leave_panel.setBackground(defaultColor);
-        jTabbedPane1.setSelectedIndex(2);
-    }//GEN-LAST:event_Payroll_panelMousePressed
-
-    private void Leave_panelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Leave_panelMousePressed
-         Dashboard_Panel.setBackground(defaultColor);
-        Profile_Panel.setBackground(defaultColor);
-        
-        Payroll_panel.setBackground(defaultColor);
-        Leave_panel.setBackground(clickedColor);
-        jTabbedPane1.setSelectedIndex(3);
-    }//GEN-LAST:event_Leave_panelMousePressed
-
-    private void Dashboard_PanelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Dashboard_PanelMousePressed
-         Dashboard_Panel.setBackground(clickedColor);
-        Profile_Panel.setBackground(defaultColor);
-        
-        Payroll_panel.setBackground(defaultColor);
-        Leave_panel.setBackground(defaultColor);
-        jTabbedPane1.setSelectedIndex(0);
-    }//GEN-LAST:event_Dashboard_PanelMousePressed
-
-    private void Profile_PanelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Profile_PanelMousePressed
-        Dashboard_Panel.setBackground(defaultColor);
-        Profile_Panel.setBackground(clickedColor);
-        
-        Payroll_panel.setBackground(defaultColor);
-        Leave_panel.setBackground(defaultColor);
-        jTabbedPane1.setSelectedIndex(1);
-    }//GEN-LAST:event_Profile_PanelMousePressed
-
     private void jLabel8MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseEntered
-        jLabel8.setForeground(clickedColor);
-        jLabel8.setFont(new Font("Segoe UI Emoji",Font.BOLD,15));
+        jLabel8.setForeground(changedcolor);
+           jLabel8.setFont(fontenter);
     }//GEN-LAST:event_jLabel8MouseEntered
 
     private void jLabel8MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseExited
-        jLabel8.setForeground(new Color(255,255,255));
-        jLabel8.setFont(new Font("Segoe UI Emoji",Font.BOLD,15));
+        jLabel8.setForeground(defaultcolor);
+        jLabel8.setFont(fontleave);
     }//GEN-LAST:event_jLabel8MouseExited
 
     private void jLabel8MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MousePressed
@@ -849,68 +1281,573 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jLabel8MousePressed
 
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(DashBoardPageEmployee.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(DashBoardPageEmployee.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(DashBoardPageEmployee.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(DashBoardPageEmployee.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//        //</editor-fold>
-//        //</editor-fold>
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new DashBoardPageEmployee().setVisible(true);
-//            }
-//        });
-//    }
+    private void reqleave_bttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reqleave_bttnActionPerformed
+       String query = null;
+        String SUrl, SUser, SPass;
+        SUrl = "jdbc:MYSQL://localhost:3306/employee_database";
+        SUser = "root";
+        SPass = "";
+        
+        try
+        {
+            if(start_date.getText().isBlank()|| end_date.getText().isBlank()||reasontxtfield.getText().isBlank()){
+                JOptionPane.showMessageDialog(this, "Please fillup all information","Invalid",JOptionPane.ERROR_MESSAGE);
+            }
+            else{
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection con = DriverManager.getConnection(SUrl,SUser,SPass);
+                Statement st = con.createStatement();
+
+                String leavetype = String.valueOf(leave_type_cmbobox.getSelectedItem());
+                String start = start_date.getText();
+                String end = end_date.getText();
+                String reason = reasontxtfield.getText();
+                int empid = Integer.parseInt(ids);
+                String empfirstname = firstname;
+                String emplastname = lastname;
+                String status = "Pending";
+
+
+                query = "INSERT INTO leave_requests (id, Start_date, End_date, Reason, First_name, Last_name, Leave_type, status) " + " VALUES("+empid+", '"+start+"', '"+end+"', '"+reason+"', '"+empfirstname+"', '"+emplastname+"', '"+leavetype+"', '"+status+"')";
+
+                st.execute(query);
+                loadData();
+                
+                start_date.setText("");
+                end_date.setText("");        
+                reasontxtfield.setText("");
+                        
+                JOptionPane.showMessageDialog(this, "Request Sent!","Success",JOptionPane.INFORMATION_MESSAGE);
+            }
+            
+        }catch(Exception e){
+            System.out.println("Error: "+e.getMessage());
+        }
+    }//GEN-LAST:event_reqleave_bttnActionPerformed
+
+    private void jLabel2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MousePressed
+       jTabbedPane1.setSelectedIndex(0);
+       title.setText("Dashboard");
+    }//GEN-LAST:event_jLabel2MousePressed
+
+    private void jLabel3MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MousePressed
+        jTabbedPane1.setSelectedIndex(1);
+        title.setText("Profile");
+    }//GEN-LAST:event_jLabel3MousePressed
+
+    private void jLabel5MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MousePressed
+        jTabbedPane1.setSelectedIndex(2);
+        title.setText("Payroll");
+    }//GEN-LAST:event_jLabel5MousePressed
+
+    private void jLabel6MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MousePressed
+        jTabbedPane1.setSelectedIndex(3);
+        title.setText("Request Leave");
+    }//GEN-LAST:event_jLabel6MousePressed
+
+    private void jLabel2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseEntered
+        jLabel2.setForeground(changedcolor);
+           jLabel2.setFont(fontenter);
+    }//GEN-LAST:event_jLabel2MouseEntered
+
+    private void jLabel2MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseExited
+        jLabel2.setForeground(defaultcolor);
+        jLabel2.setFont(fontleave);
+    }//GEN-LAST:event_jLabel2MouseExited
+
+    private void jLabel3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseEntered
+       jLabel3.setForeground(changedcolor);
+           jLabel3.setFont(fontenter);
+    }//GEN-LAST:event_jLabel3MouseEntered
+
+    private void jLabel3MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseExited
+        jLabel3.setForeground(defaultcolor);
+        jLabel3.setFont(fontleave);
+    }//GEN-LAST:event_jLabel3MouseExited
+
+    private void jLabel5MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseEntered
+        jLabel5.setForeground(changedcolor);
+           jLabel5.setFont(fontenter);
+    }//GEN-LAST:event_jLabel5MouseEntered
+
+    private void jLabel5MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseExited
+        jLabel5.setForeground(defaultcolor);
+        jLabel5.setFont(fontleave);
+    }//GEN-LAST:event_jLabel5MouseExited
+
+    private void jLabel6MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseEntered
+        jLabel6.setForeground(changedcolor);
+           jLabel6.setFont(fontenter);
+    }//GEN-LAST:event_jLabel6MouseEntered
+
+    private void jLabel6MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseExited
+        jLabel6.setForeground(defaultcolor);
+        jLabel6.setFont(fontleave);
+    }//GEN-LAST:event_jLabel6MouseExited
+    private void refreshProfileData(){
+        String query = null;
+        String SUrl, SUser, SPass;
+        SUrl = "jdbc:MYSQL://localhost:3306/employee_database";
+        SUser = "root";
+        SPass = "";
+        
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(SUrl,SUser,SPass);
+            Statement st = con.createStatement();
+            
+            query = "SELECT * FROM users where id="+ids;
+            
+            ResultSet rs = st.executeQuery(query);
+            while(rs.next()){
+                firstname = rs.getString("First Name");
+                lastname = rs.getString("Last Name");
+                bday = rs.getString("Birthdate");
+                phones = rs.getString("Phone_number");
+                sss = rs.getString("SSS");
+                phil = rs.getString("Philhealth");        
+                tin = rs.getString("TIN");      
+                pagibig = rs.getString("Pagibig");
+                position = rs.getString("Position");
+                empstatus = rs.getString("Status");        
+            }
+            
+            
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+    private void editprofileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editprofileActionPerformed
+        this.setVisible(false);
+        refreshProfileData();
+        new UpdateinfoPage(this, firstname,  lastname,  ids,  bday,  phones,
+            sss,  phil,  tin,  pagibig, position, empstatus, isEmployee).setVisible(true);
+    }//GEN-LAST:event_editprofileActionPerformed
+
+    private void selected_monthItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_selected_monthItemStateChanged
+        if(evt.getStateChange() == java.awt.event.ItemEvent.SELECTED){
+            DefaultTableModel tablemodel = (DefaultTableModel)attenance_table.getModel();
+            tablemodel.setRowCount(0);
+            
+            String selectedmonth = String.valueOf(selected_month.getSelectedItem());
+            String SUrl, SUser, SPass, query;
+            SUrl = "jdbc:MYSQL://localhost:3306/employee_database";
+            SUser = "root";
+            SPass = "";
+        
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(SUrl,SUser,SPass);
+            Statement st = con.createStatement();
+            
+            query = "SELECT * FROM attendance where id="+ids;
+            
+            ResultSet rs = st.executeQuery(query);
+            
+            String date;
+            String timeIn;
+            String timeOut;
+            double hourlyrate = Double.parseDouble(hourly);
+            double hoursworked = 0;
+            double grosspay = 0;
+            double SSSdeduction = 0;
+            double PhilhealthDeduction = 0;
+            double PagibigDeduction = 0;
+            double WithholdingTax = 0;
+            double total = 0;
+            double netpay = 0;
+            double finalDeductions = 0;
+            
+            while(rs.next()){
+                date = rs.getString("date");
+                timeIn = rs.getString("time_in");
+                timeOut =rs.getString("time_out");
+                
+                if(date.startsWith(getMonthNumber(selectedmonth))){
+                    String tbdata [] = {date,timeIn,timeOut};
+                    tablemodel.addRow(tbdata);
+                    double timein = Double.parseDouble(timeIn.replace(":", "."));
+                    double timeout = Double.parseDouble(timeOut.replace(":",".")); 
+                    double hoursWorked = timeout - timein;
+                    hoursworked += hoursWorked;
+                    grosspay = Math.round(hoursworked * hourlyrate * 100.0)/ 100.0;
+                    SSSdeduction = getSSSDeduction((grosspay * 100.0)/100);
+                    PhilhealthDeduction = getPhilhealthDeduction(grosspay);
+                    PagibigDeduction = getPagibigDeduction((grosspay * 100.0)/100);
+                    
+                    double deductions = SSSdeduction + PhilhealthDeduction + PagibigDeduction;
+                    total = grosspay - deductions;
+                    
+                    WithholdingTax = getWithholdingTax(grosspay, total);
+                    
+                    finalDeductions = SSSdeduction + PhilhealthDeduction + PagibigDeduction + WithholdingTax;
+                    netpay = CalculateNetPay(grosspay,finalDeductions);
+                    
+                }
+                
+            }
+            
+                String formatted = String.format("%.0f",hoursworked);
+                hoursworked_field.setText(formatted+" Hours");
+                hourly_field.setText("₱"+hourly);
+                gross_field.setText("₱"+String.valueOf(grosspay));
+                SSS_field.setText("₱"+String.valueOf(SSSdeduction));
+                phil_field.setText("₱"+String.valueOf(PhilhealthDeduction));
+                pagibig_field.setText("₱"+String.valueOf(PagibigDeduction));
+                tax_field.setText("₱"+String.valueOf(WithholdingTax));
+                net_field.setText("₱"+String.valueOf(netpay));
+                
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+        
+        
+        
+
+        
+      
+    }//GEN-LAST:event_selected_monthItemStateChanged
+    private String getMonthNumber(String month) {
+        switch (month) {
+        case "January": return "01";
+        case "February": return "02";
+        case "March": return "03";
+        case "April": return "04";
+        case "May": return "05";
+        case "June": return "06";
+        case "July": return "07";
+        case "August": return "08";
+        case "September": return "09";
+        case "October": return "10";
+        case "November": return "11";
+        case "December": return "12";
+        default: return "a";
+        }   
+     
+    }
+    private double CalculateNetPay(double salary, double finalDeductions){
+        double netPay = 0;
+        netPay = salary - finalDeductions;
+        return Math.round((netPay * 100.0)/100.0);
+
+    }
+    
+    private double getWithholdingTax(double salary, double total){
+       double Tax = 0;
+	if (salary <= 20832) { 
+              Tax = 0;
+	}
+	else if (salary >= 20833 && salary < 33333) {
+		Tax = (total - 20833) * 0.2;
+		if (Tax <= 0) {
+			Tax = 0;
+		}
+		else {
+			return Tax;
+		}
+	}
+	else if (salary >= 33333 && salary < 66667) {
+		Tax = 2500 + (total - 33333) * 0.25;
+	} 
+	else if (salary >= 66667 && salary < 166667) {
+		Tax = 10833 + (total - 66667) * 0.3;
+	} 
+	else if (salary >= 166667 && salary < 666667) {
+		Tax = 40833.33 + (total - 166667) * 0.32;
+	}
+	else if (salary >= 666667) {
+		Tax = 200833.33 + (total - 666667) * 0.35;
+	} 
+        return Math.round(Tax * 100.0)/100.0;
+    }
+    
+    private double getPagibigDeduction(double salary){
+        double pagibig = 0;
+	if (salary >= 1000 && salary <= 1500) {
+		pagibig = (salary * 0.03);
+		if (pagibig >= 100) {
+			pagibig = 100.0;
+		}else {
+			return pagibig;
+		}
+        }else if (salary > 1500) {
+		pagibig = (salary * 0.04);
+		if (pagibig >= 100) {
+			pagibig = 100.0;
+		}
+
+	}
+	else if (salary < 1000) {
+		pagibig = 0;
+	}
+        return Math.round((pagibig*100.0)/100.0);
+    }
+    
+    private double getPhilhealthDeduction(double salary){
+        double Philhealth = 0;
+	if (salary <= 10000) { 
+		Philhealth = 300/2;
+	}
+	else if (salary >= 10000.01 && salary <= 59999.99) {
+		Philhealth = salary * 0.03 / 2;
+	} 
+	else if (salary >= 60000) {
+		Philhealth = 1800 / 2;
+	}
+        return Math.round(Philhealth * 100.0)/100.0;
+    }
+            
+    private double getSSSDeduction(double salary){
+        
+        double SSS = 0;
+	if (salary >= 24750) {
+		SSS = 1125.00;
+	}
+	else if (salary >= 24250 && salary < 24750) {
+		SSS = 1102.50;
+	}
+	else if (salary >= 23750 && salary <= 24250) {
+		SSS = 1080.00;
+	}
+	else if (salary >= 23250 && salary <= 23750) {
+		SSS = 1057.50;
+	}
+	else if (salary >= 22750 && salary <= 23250) {
+		SSS = 1035.00;
+	}
+	else if (salary >= 22250 && salary <= 22750) {
+		SSS = 1012.50;
+	}
+	else if (salary >= 21750 && salary <= 22250) {
+		SSS = 990.00;
+	}
+	else if (salary >= 21250 && salary <= 21750) {
+		SSS = 967.50;
+	}
+	else if (salary >= 20750 && salary <= 21250) {
+		SSS = 945.00;
+	}
+	else if (salary >= 20250 && salary <= 20750) {
+		SSS = 922.50;
+	}
+	else if (salary >= 19750 && salary <= 20250) {
+		SSS = 900.00;
+	} 
+	else if (salary >= 19250 && salary <= 19750) {
+		SSS = 877.50;
+	}
+	else if (salary >= 18750 && salary <= 19250) {
+		SSS = 855.00;
+	}
+	else if (salary >= 18250 && salary <= 18750) {
+		SSS = 832.50;
+	}
+	else if (salary >= 17750 && salary <= 18250) {
+		SSS = 810.00;
+	}
+	else if (salary >= 17250 && salary <= 17750) {
+		SSS = 787.50;
+	}
+	else if (salary >= 16750 && salary <= 17250) {
+		SSS = 765.00;
+	}
+	else if (salary >= 16250 && salary <= 16750) {
+		SSS = 742.50;
+	}
+	else if (salary >= 15750 && salary <= 16250) {
+		SSS = 720.00;
+	}
+	else if (salary >= 15250 && salary <= 15750) {
+		SSS = 697.50;
+	}
+	else if (salary >= 14750 && salary <= 15250) {
+		SSS = 675.00;
+	}
+	else if (salary >= 14250 && salary <= 14750) {
+		SSS = 652.50;
+	}
+	else if (salary >= 13750 && salary <= 14250) {
+		SSS = 630.00;
+	}
+	else if (salary >= 13250 && salary <= 13750) {
+		SSS = 607.50;
+	}
+	else if (salary >= 12750 && salary <= 13250) {
+		SSS = 585.00;
+	} 
+	else if (salary >= 12250 && salary <= 12750) {
+		SSS = 562.50;
+	}
+	else if (salary >= 11750 && salary <= 12250) {
+		SSS = 540.00;
+	}
+	else if (salary >= 11250 && salary <= 11750) {
+		SSS = 517.50;
+	} 
+	else if (salary >= 10750 && salary <= 11250) {
+		SSS = 495.00;
+	}
+	else if (salary >= 10250 && salary <= 10750) {
+		SSS = 472.50;
+	} 
+	else if (salary >= 9750 && salary <= 10250) {
+		SSS = 450.00;
+	}
+	else if (salary >= 9250 && salary <= 9750) {
+		SSS = 427.50;
+	}
+	else if (salary >= 8750 && salary <= 9250) {
+		SSS = 405.00;
+	}
+	else if (salary >= 8250 && salary <= 8750) {
+		SSS = 382.50;
+	}
+	else if (salary >= 7750 && salary <= 8250) {
+		SSS = 360.00;
+	} 
+	else if (salary >= 7250 && salary <= 7750) {
+		SSS = 337.50;
+	}
+	else if (salary >= 6750 && salary <= 7250) {
+		SSS = 315.00;
+	} 
+	else if (salary >= 6250 && salary <= 6750) {
+		SSS = 292.50;
+	}
+	else if (salary >= 5750 && salary <= 6250) {
+		SSS = 270.00;
+	}
+	else if (salary >= 5250 && salary <= 5750) {
+		SSS = 247.50;
+	}
+	else if (salary >= 4750 && salary <= 5250) {
+		SSS = 225.00;
+	}
+	else if (salary >= 4250 && salary <= 4750) {
+		SSS = 202.50;
+	}
+	else if (salary >= 3750 && salary <= 4250) {
+		SSS = 180.00;
+	}
+	else if (salary >= 3250 && salary <= 3750) {
+		SSS = 157.50;
+	}
+	else if (salary < 3250) {
+		SSS = 135.00;
+	}
+        return SSS;
+        
+    }
+    private void loadLeaveTable(){
+        String query = null;
+        String SUrl, SUser, SPass;
+        SUrl = "jdbc:MYSQL://localhost:3306/employee_database";
+        SUser = "root";
+        SPass = "";
+        int userID = Integer.parseInt(ids);
+        
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(SUrl,SUser,SPass);
+            Statement st = con.createStatement();
+            
+            
+            query  = "SELECT * FROM leave_requests WHERE id="+userID;
+            
+            ResultSet rs = st.executeQuery(query);
+            
+            while(rs.next()){
+                String type = rs.getString("Leave_type");
+                String start = rs.getString("Start_date");
+                String end = rs.getString("End_date");
+                String stat = rs.getString("status");
+                
+                String tbdata[] = {type, start, end, stat};
+                DefaultTableModel tablemodel = (DefaultTableModel)leave_table.getModel();
+                
+                tablemodel.addRow(tbdata);
+                leave_totals++;
+            }
+            leave_total.setText(""+leave_totals);
+            
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+    private void loadData(){
+        DefaultTableModel tablemodel = (DefaultTableModel)leave_table.getModel();
+        tablemodel.setRowCount(0);
+                
+        String query = null;
+        String SUrl, SUser, SPass;
+        SUrl = "jdbc:MYSQL://localhost:3306/employee_database";
+        SUser = "root";
+        SPass = "";
+        int userID = Integer.parseInt(ids);
+        
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(SUrl,SUser,SPass);
+            Statement st = con.createStatement();
+            
+            
+            query  = "SELECT * FROM leave_requests WHERE id="+userID;
+            
+            ResultSet rs = st.executeQuery(query);
+            
+            while(rs.next()){
+                String type = rs.getString("Leave_type");
+                String start = rs.getString("Start_date");
+                String end = rs.getString("End_date");
+                String stat = rs.getString("status");
+                
+                String tbdata[] = {type, start, end, stat};
+                
+                
+                tablemodel.addRow(tbdata);
+            }
+            
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel Dashboard_Panel;
     private javax.swing.JPanel Dashboard_Tab;
-    private javax.swing.JPanel Leave_panel;
     private javax.swing.JPanel Leave_tab;
     private javax.swing.JLabel Name_label1;
     private javax.swing.JLabel Name_label2;
-    private javax.swing.JPanel Payroll_panel;
     private javax.swing.JPanel Payroll_tab;
-    private javax.swing.JPanel Profile_Panel;
     private javax.swing.JPanel Profile_tab;
+    private javax.swing.JTextField SSS_field;
+    private javax.swing.JLabel SSS_lbl;
     private javax.swing.JLabel Welcome_label;
+    private javax.swing.JLabel absent_count;
+    private javax.swing.JTable attenance_table;
     private javax.swing.JLabel basicsalarylabel;
-    private javax.swing.JLabel bdaylabel;
+    public static javax.swing.JLabel bdaylabel;
+    private javax.swing.JButton editprofile;
     private javax.swing.JLabel emp_countlbl;
-    private javax.swing.JLabel fullname;
+    private javax.swing.JTextField end_date;
+    public static javax.swing.JLabel fullname;
+    private javax.swing.JTextField gross_field;
+    private javax.swing.JLabel grosspay_lbl;
     private javax.swing.JLabel grossratelabel;
+    private javax.swing.JTextField hourly_field;
+    private javax.swing.JLabel hourlyrate_lbl;
     private javax.swing.JLabel hourlyratelabel;
+    private javax.swing.JLabel hours_txt;
+    private javax.swing.JTextField hoursworked_field;
+    private javax.swing.JLabel hoursworked_lbl;
     private javax.swing.JLabel id_label;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
@@ -919,15 +1856,30 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
+    private javax.swing.JLabel jLabel36;
+    private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabelemp;
-    private javax.swing.JList<String> jList1;
+    private javax.swing.JLabel jLabelemp1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel15;
@@ -936,6 +1888,7 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel18;
     private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel20;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -943,17 +1896,32 @@ public class DashBoardPageEmployee extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JLabel pagibiglabel;
-    private javax.swing.JLabel philhealthlabbel;
-    private javax.swing.JLabel phonelabel;
-    private javax.swing.JLabel positionlabel;
-    private javax.swing.JLabel ssslabel;
-    private javax.swing.JLabel status_label;
-    private javax.swing.JLabel tinlabel;
+    private javax.swing.JTable leave_table;
+    private javax.swing.JLabel leave_total;
+    private javax.swing.JComboBox<String> leave_type_cmbobox;
+    private javax.swing.JLabel leavelbl;
+    private javax.swing.JTextField net_field;
+    private javax.swing.JLabel netpay_lbl;
+    private javax.swing.JTextField pagibig_field;
+    private javax.swing.JLabel pagibig_lbl;
+    public static javax.swing.JLabel pagibiglabel;
+    private javax.swing.JTextField phil_field;
+    private javax.swing.JLabel philhealth_lbl;
+    public static javax.swing.JLabel philhealthlabbel;
+    public static javax.swing.JLabel phonelabel;
+    public static javax.swing.JLabel positionlabel;
+    private javax.swing.JTextField reasontxtfield;
+    private javax.swing.JButton reqleave_bttn;
+    private javax.swing.JComboBox<String> selected_month;
+    public static javax.swing.JLabel ssslabel;
+    private javax.swing.JTextField start_date;
+    public static javax.swing.JLabel status_label;
+    private javax.swing.JTextField tax_field;
+    private javax.swing.JLabel tax_lbl;
+    public static javax.swing.JLabel tinlabel;
+    private javax.swing.JLabel title;
     // End of variables declaration//GEN-END:variables
 }
